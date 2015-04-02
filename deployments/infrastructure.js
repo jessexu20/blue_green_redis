@@ -32,7 +32,7 @@ var infrastructure =
 
         var count =0;
         function getCode(){
-            var options = {url: "http://localhost:8181/"};
+            var options = {url: "http://localhost:8181/switch"};
             request(options,function(error,res,body){
                 console.log(res.statusCode);
                 console.log(TARGET);
