@@ -1,0 +1,1 @@
+GIT_WORK_TREE="/Users/jessexu/Documents/North Carolina State University/Courses/CSC591 DevOp/deploy/green-www/" git checkout -f
