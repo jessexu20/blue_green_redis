@@ -1,4 +1,3 @@
-var toobusy = require('toobusy');
 var express = require('express')
 var fs      = require('fs')
 var app = express()
@@ -8,9 +7,11 @@ var PORT = args[0];
 
 app.get('/', function(req, res)
 {
-	res.status(500).send('Something broke!');
+	res.status(500).send('Something has broken!');
 });
-
+app.get('/switch',function(req,res){
+	res.send('switch page');
+})
 var server = app.listen(PORT, function () {
 
 	var host = server.address().address
