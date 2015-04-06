@@ -32,6 +32,30 @@ In this homework, I have implemented the following task:
 	-Demonstrate migration of data on switch
 	-Demonstrate mirroring
 	
+#### Git/hook setup
+
+Other the content in the workshop, you can check the file in the green.git and blue.git folders about the post-receive features.
+
+I have also implemented the pre-push feature. You should put the following in your .git/hooks/pre-push file
+	
+		#!/bin/sh
+		node deployments/infrastructure.js
+		
+After that, you should 
+	
+		chmod +x pre-push
+		
+And you would be able to see the following when you do a push.
+
+		Jesses-MacBook-Air:deploy_redis jessexu$ git add -A
+		Jesses-MacBook-Air:deploy_redis jessexu$ git commit -m "move readme"
+		[master 7bf27ad] move readme
+		 1 file changed, 0 insertions(+), 0 deletions(-)
+		 rename deployments/README.md => README.md (100%)
+		Jesses-MacBook-Air:deploy_redis jessexu$ git push origin master
+		blue slice
+		green slice
+	
 #### Switch Route and Migration
 
 Please make sure that the mirror switch is turned off(set false).
