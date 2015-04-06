@@ -17,6 +17,8 @@ var infrastructure =
         // Proxy.
 		blueclient.del("myimg");
 		greenclient.del("myimg");
+		blueclient.del("switch");
+		greenclient.del("switch");
         var options = {};
         var proxy = httpProxy.createProxyServer(options);
 
@@ -72,22 +74,24 @@ var infrastructure =
 			blueclient.get("switch",function(err,value){
 				if(value=="1"){
                     TARGET=GREEN;
-                    var server = http.createServer(function (req, res) {
+                    server = http.createServer(function (req, res) {
                         proxy.web(req, res, {target: TARGET});
                     });
 					console.log("switch to green "+GREEN);
 					blueclient.del("switch");
+					blueclient.get("switch",function(err,value){console.log(value)});
 					migrate(GREEN);
 				}
 			})
 			greenclient.get("switch",function(err,value){
 				if(value=="1"){
                     TARGET=BLUE;
-                    var server = http.createServer(function (req, res) {
+                    server = http.createServer(function (req, res) {
                         proxy.web(req, res, {target: TARGET});
                     });
 					console.log("switch to blue "+BLUE);
 					greenclient.del("switch");
+					greenclient.get("switch",function(err,value){console.log(value)})
 					migrate(BLUE);
 				}
 			})
@@ -111,11 +115,11 @@ var infrastructure =
                         blue_flag=1;
                         init_blue=num;
 						add=num-init_blue;
-                        console.log("####blue flag "+blue_flag+" green flag "+green_flag);
+                        // console.log("####blue flag "+blue_flag+" green flag "+green_flag);
                     }
                 }
             );
-			console.log("-------blue flag "+blue_flag+" green flag "+green_flag);
+			// console.log("-------blue flag "+blue_flag+" green flag "+green_flag);
             greenclient.llen('myimg',function(err,num){
                     if(num>init_green){
                         green_flag=1;
@@ -150,7 +154,7 @@ var infrastructure =
 
         var check= setInterval(trigger, 3*1000);
 
-        if(mirror==false){
+        if(mirror==true){
             var onChange=setInterval(dup,1*1000);
         }
 

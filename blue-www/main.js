@@ -9,10 +9,10 @@ var PORT = args[0];
 
 app.get('/', function(req, res)
 {
-	res.send('Everything goes well!');
+	res.send('Hello Blue!');
 });
 app.get('/switch',function(req,res){
-	res.send('switch page ON blue');
+	res.redirect('/');
 	client.set("switch","1");
 })
 app.post('/upload',[ multer({ dest: './uploads/'}), function(req, res){

@@ -9,10 +9,10 @@ var PORT = args[0];
 
 app.get('/', function(req, res)
 {
-	res.send('Everything goes well!');
+	res.send('Hello Green!');
 });
 app.get('/switch',function(req,res){
-	res.send('switch page ON green');
+	res.redirect('/');
 	client.set("switch","1");
 	//res.status(500).send('Something has broken!');
 
