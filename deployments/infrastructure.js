@@ -10,7 +10,7 @@ var BLUE = 'http://127.0.0.1:9090';
 var greenclient = redis.createClient(6380, '127.0.0.1', {})
 var blueclient = redis.createClient(6379, '127.0.0.1', {})
 var TARGET = BLUE;
-var mirror=true;
+var mirror=false;
 var infrastructure =
 {
     setup: function () {
@@ -45,7 +45,7 @@ var infrastructure =
 		function migrate(target){
 			if(target==GREEN){
                 blueclient.llen("myimg",function(error,num){
-                    console.log(num)
+                    console.log("Migrating to Green Begin!! Copying "+num+" data")
                     if(num!=0){
                         (blueclient.lrange("myimg",0,-1,function(err,items){
                             if(err) throw err;
@@ -58,7 +58,7 @@ var infrastructure =
 			}
 			else{
                 greenclient.llen("myimg",function(error,num){
-                    console.log(num)
+                    console.log("Migrating to Blue Begin!! Copying "+num+" data")
                     if(num!=0){
                         (greenclient.lrange("myimg",0,-1,function(err,items){
                             if(err) throw err;
@@ -79,8 +79,8 @@ var infrastructure =
                     });
 					console.log("switch to green "+GREEN);
 					blueclient.del("switch");
-					blueclient.get("switch",function(err,value){console.log(value)});
-					migrate(GREEN);
+					// blueclient.get("switch",function(err,value){console.log(value)});
+					if(mirror==false) migrate(GREEN);
 				}
 			})
 			greenclient.get("switch",function(err,value){
@@ -91,8 +91,8 @@ var infrastructure =
                     });
 					console.log("switch to blue "+BLUE);
 					greenclient.del("switch");
-					greenclient.get("switch",function(err,value){console.log(value)})
-					migrate(BLUE);
+					// greenclient.get("switch",function(err,value){console.log(value)})
+					if(mirror==false) migrate(BLUE);
 				}
 			})
         }
