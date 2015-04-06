@@ -9,7 +9,7 @@ var PORT = args[0];
 
 app.get('/', function(req, res)
 {
-	res.send('Hello Blue!');
+	res.send('Hello Blue!!');
 });
 app.get('/switch',function(req,res){
 	res.redirect('/');

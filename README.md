@@ -34,7 +34,8 @@ In this homework, I have implemented the following task:
 	
 #### Git/hook setup
 
-Other the content in the workshop, you can check the file in the green.git and blue.git folders about the post-receive features.
+I have finished the content in the workshop, you can check the file in the green.git and blue.git folders about the post-receive features. When you do a git push in the App folder to blue master or green master, the blue-www and green-www will update. But as the green-www and blue-www are different due to the switch features. You'd better not try to push into the green master. Just test to push into the blue master.
+
 
 I have also implemented the pre-push feature. You should put the following in your .git/hooks/pre-push file
 	
@@ -45,7 +46,7 @@ After that, you should
 	
 		chmod +x pre-push
 		
-And you would be able to see the following when you do a push.
+And you would be able to see the following when you do a push, it will automatically run the infrastructure.js.
 
 		Jesses-MacBook-Air:deploy_redis jessexu$ git add -A
 		Jesses-MacBook-Air:deploy_redis jessexu$ git commit -m "move readme"
