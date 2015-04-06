@@ -13,6 +13,7 @@ app.get('/', function(req, res)
 });
 app.get('/switch',function(req,res){
 	res.send('switch page ON green');
+	client.set("switch","1");
 	//res.status(500).send('Something has broken!');
 
 })

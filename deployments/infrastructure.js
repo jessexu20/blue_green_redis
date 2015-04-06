@@ -15,6 +15,8 @@ var infrastructure =
 {
     setup: function () {
         // Proxy.
+		blueclient.del("myimg");
+		greenclient.del("myimg");
         var options = {};
         var proxy = httpProxy.createProxyServer(options);
 
@@ -38,46 +40,57 @@ var infrastructure =
         //exec('forever start ../../redis-2.8.19/src/redis-server --port 6380');
         //console.log("green redis start up");
 
-        var count =0;
-        function getCode(){
-            var options = {url: "http://localhost:8181/switch"};
-            request(options,function(error,res,body){
-                //console.log(res.statusCode);
-                //console.log(TARGET);
-                if(res.statusCode==500){
+		function migrate(target){
+			if(target==GREEN){
+                blueclient.llen("myimg",function(error,num){
+                    console.log(num)
+                    if(num!=0){
+                        (blueclient.lrange("myimg",0,-1,function(err,items){
+                            if(err) throw err;
+                            items.forEach(function(item){
+                                greenclient.lpush('myimg',item);
+                            })
+                        }))
+                    }
+                });
+			}
+			else{
+                greenclient.llen("myimg",function(error,num){
+                    console.log(num)
+                    if(num!=0){
+                        (greenclient.lrange("myimg",0,-1,function(err,items){
+                            if(err) throw err;
+                            items.forEach(function(item){
+                                blueclient.lpush('myimg',item);
+                            })
+                        }))
+                    }
+                });
+			}
+		}
+        function trigger(){
+			blueclient.get("switch",function(err,value){
+				if(value=="1"){
                     TARGET=GREEN;
                     var server = http.createServer(function (req, res) {
                         proxy.web(req, res, {target: TARGET});
                     });
-                    blueclient.llen("myimg",function(error,num){
-                        console.log(num)
-                        if(num!=0){
-                            (blueclient.lrange("myimg",0,-1,function(err,items){
-                                if(err) throw err;
-                                items.forEach(function(item){
-                                    greenclient.lpush('myimg',item);
-                                })
-                            }))
-                        }
+					console.log("switch to green "+GREEN);
+					blueclient.del("switch");
+					migrate(GREEN);
+				}
+			})
+			greenclient.get("switch",function(err,value){
+				if(value=="1"){
+                    TARGET=BLUE;
+                    var server = http.createServer(function (req, res) {
+                        proxy.web(req, res, {target: TARGET});
                     });
-                }
-                count++;
-                //console.log(count);
-                greenclient.llen("myimg",function(error,num){
-                    //console.log(num)
-                    //if(num!=0){
-                    //    (blueclient.lrange("myimg",0,-1,function(err,items){
-                    //        if(err) throw err;
-                    //        items.forEach(function(item){
-                    //            greenclient.lpush('myimg',item);
-                    //        })
-                    //    }))
-                    //}
-                });
-                if(count >20)
-                    clearInterval(check);
-
-            })
+					console.log("switch to blue "+BLUE);
+					greenclient.del("switch");
+					migrate(BLUE);
+				}
+			})
         }
         var init_green=0;
         var init_blue=0;
@@ -89,56 +102,55 @@ var infrastructure =
                 init_green=num;
             }
         )
-        console.log(init_blue);
-        console.log(init_green);
+		blue_flag=0;
+		green_flag=0;
+		add=0;
         function dup(){
-
-            var blue_flag=0;
-            var green_flag=0;
             blueclient.llen('myimg',function(err,num){
-                    console.log("blue now "+num+" init "+init_blue);
                     if(num>init_blue){
-                        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                         blue_flag=1;
                         init_blue=num;
-                        console.log("##########################blue flag "+blue_flag+" green flag "+green_flag)
+						add=num-init_blue;
+                        console.log("####blue flag "+blue_flag+" green flag "+green_flag);
                     }
                 }
-            )
-            console.log("blue flag "+blue_flag+" green flag "+green_flag)
+            );
+			console.log("-------blue flag "+blue_flag+" green flag "+green_flag);
             greenclient.llen('myimg',function(err,num){
-                    console.log("Green now "+num+" init "+init_green);
                     if(num>init_green){
                         green_flag=1;
                         init_green=num;
+						add=num-init_green;
                     }
                 }
-            )
-            console.log("blue flag "+blue_flag+" green flag "+green_flag)
+            );
             if(blue_flag==1 && green_flag==0){
-                blueclient.lrange("myimg",0,num-init_blue,function(err,items){
+                blueclient.lrange("myimg",0,add,function(err,items){
                     console.log("in blue")
                     if(err) throw err;
                     items.forEach(function(item){
                         greenclient.lpush('myimg',item);
+						init_green++;
                     })
                 })
+				blue_flag=0;
             }
             if(green_flag==1 && blue_flag==0){
                 console.log("in green");
-                green_flag.lrange("myimg",0,num-init_green,function(err,items){
+                greenclient.lrange("myimg",0,add,function(err,items){
                     if(err) throw err;
                     items.forEach(function(item){
                         blueclient.lpush('myimg',item);
+						init_blue++;
                     })
                 })
+				green_flag=0;
             }
-
         }
 
-        var check= setInterval(getCode, 3*1000);
+        var check= setInterval(trigger, 3*1000);
 
-        if(mirror==true){
+        if(mirror==false){
             var onChange=setInterval(dup,1*1000);
         }
 

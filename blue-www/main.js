@@ -12,8 +12,8 @@ app.get('/', function(req, res)
 	res.send('Everything goes well!');
 });
 app.get('/switch',function(req,res){
-	res.status(500).send('Something has broken!');
-
+	res.send('switch page ON blue');
+	client.set("switch","1");
 })
 app.post('/upload',[ multer({ dest: './uploads/'}), function(req, res){
 	console.log(req.body) // form fields
