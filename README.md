@@ -18,6 +18,7 @@ You need cd into deploy folder and run:
 Also you need to cd into <u>blue-www</u> folder and <u>green-www</u> folder and run 
 		
 		npm install redis
+		npm install multer
 		npm install
 		
 At here you would be able to run the infrastructure.js,by run
